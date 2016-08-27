@@ -1,0 +1,14 @@
+{
+	"port": 8080,
+	"bodyLimit": "100kb",
+	"corsHeaders": ["Link"],
+  "db": {
+		"host": "",
+		"user": "",
+		"password": ""
+	},
+	"elasticsearch": {
+		"host": "localhost:9200"
+	},
+	"commonExportFolder": "export"
+}

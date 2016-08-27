@@ -15,7 +15,7 @@ export default ({ config, db, app }) => {
 			.catch(err => res.json(err))
   });
 
-	exportApi.get('/ela', (req, res) => {
+	exportApi.get('/ping', (req, res) => {
 		Es.ping({
 			requestTimeout: 30000,
 			hello: "elasticsearch"
