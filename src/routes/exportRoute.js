@@ -8,7 +8,7 @@ export default ({ config, db, app }) => {
   exportApi.get('/', function(req, res) {
 		app.server.timeout = 0
 
-		const TestExporter = new Exporter(db, 'test')
+		const TestExporter = new Exporter(db, 'node_test', 'videos')
 
 		TestExporter.exportMysql()
 			.then(result => res.json(result))
