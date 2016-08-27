@@ -1,4 +1,5 @@
 import { mkdirSync } from '../lib/util'
+import config from '../config.json'
 
 export class Exporter {
 
@@ -6,10 +7,10 @@ export class Exporter {
     this.limit = limit
     this.db = db
     this.fs = require('fs')
-    this.commonExportFolder = 'export'
+    this.commonExportFolder = config.commonExportFolder
     this.alias = alias
     this.type = type
-    this.exportFolder = `${this.commonExportFolder}/${alias}`
+    this.exportFolder = `${this.commonExportFolder}/${this.alias}`
 
     mkdirSync(this.commonExportFolder)
     mkdirSync(this.exportFolder)
@@ -83,7 +84,7 @@ export class Exporter {
   writeRow(row, iterator) {
     this.fs.appendFile(
       `${this.exportFolder}/${iterator+1}.json`,
-      `{ "index": { "_index": "${this.alias}", "_type": "${this.type}}" } }\r\n`
+      `{ "index": { "_index": "${this.alias}", "_type": "${this.type}" } }\r\n`
       + `${JSON.stringify(row)}\r\n`
     )
   }

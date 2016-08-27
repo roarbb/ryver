@@ -5,7 +5,7 @@ import Es from '../elasticsearch'
 export default ({ config, db, app }) => {
 	let exportApi = Router();
 
-  exportApi.get('/', function(req, res) {
+  exportApi.get('/', (req, res) => {
 		app.server.timeout = 0
 
 		const TestExporter = new Exporter(db, 'node_test', 'videos')
@@ -15,7 +15,7 @@ export default ({ config, db, app }) => {
 			.catch(err => res.json(err))
   });
 
-	exportApi.get('/ela', function(req, res) {
+	exportApi.get('/ela', (req, res) => {
 		Es.ping({
 			requestTimeout: 30000,
 			hello: "elasticsearch"

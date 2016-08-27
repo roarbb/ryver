@@ -1,0 +1,252 @@
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1,
+    "index.mapping.ignore_malformed": true,
+    "analysis": {
+      "filter": {
+        "trigrams_filter": {
+          "type": "ngram",
+          "min_gram": 3,
+          "max_gram": 3
+        },
+        "edge_n_gram": {
+          "max_gram": 50,
+          "min_gram": 2,
+          "type": "edgeNGram",
+          "token_chars": [
+            "letter",
+            "digit",
+            "whitespace",
+            "punctuation",
+            "symbol"
+          ]
+        },
+        "special_filter": {
+          "type": "word_delimiter",
+          "type_table": [
+            "$ => ALPHA",
+            "# => ALPHA",
+            "@ => ALPHA"
+          ]
+        },
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "trigrams": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "trigrams_filter"
+          ]
+        },
+        "sortable": {
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "partial": {
+          "filter": [
+            "standard",
+            "lowercase",
+            "asciifolding",
+            "edge_n_gram"
+          ],
+          "type": "custom",
+          "tokenizer": "standard"
+        },
+        "full_search": {
+          "filter": [
+            "standard",
+            "lowercase",
+            "asciifolding"
+          ],
+          "type": "custom",
+          "tokenizer": "standard"
+        },
+        "special_analyzer": {
+          "type": "custom",
+          "tokenizer": "whitespace",
+          "filter": [
+            "lowercase",
+            "special_filter"
+          ]
+        },
+        "autocomplete": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "autocomplete_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "bundles": {
+      "properties": {
+        "platform": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "device": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "type": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "tags": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "state": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "publish": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "ignore_malformed": true
+        },
+        "expiry": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "ignore_malformed": true
+        },
+        "modified": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "ignore_malformed": true
+        },
+        "name": {
+          "type": "string",
+          "analyzer": "trigrams",
+          "fields": {
+            "raw": {
+              "type": "string",
+              "analyzer": "sortable"
+            },
+            "partial": {
+              "search_analyzer": "full_search",
+              "analyzer": "partial",
+              "type": "string"
+            },
+            "special": {
+              "type": "string",
+              "analyzer": "special_analyzer"
+            }
+          }
+        }
+      }
+    },
+    "videos": {
+      "properties": {
+        "title": {
+          "type": "string",
+          "analyzer": "trigrams",
+          "fields": {
+            "raw": {
+              "type": "string",
+              "analyzer": "sortable"
+            },
+            "partial": {
+              "search_analyzer": "full_search",
+              "analyzer": "partial",
+              "type": "string"
+            },
+            "special": {
+              "type": "string",
+              "analyzer": "special_analyzer"
+            },
+            "autocomplete": {
+              "type": "string",
+              "analyzer": "autocomplete"
+            }
+          }
+        },
+        "episode_title": {
+          "type": "string",
+          "index": "analyzed"
+        },
+        "state": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "group_tag": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "languages": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "media_type": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "created": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "ignore_malformed": true
+        },
+        "original_date": {
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss",
+          "ignore_malformed": true
+        },
+        "producer": {
+          "type": "string",
+          "analyzer": "trigrams",
+          "fields": {
+            "raw": {
+              "type": "string",
+              "analyzer": "sortable"
+            },
+            "partial": {
+              "search_analyzer": "full_search",
+              "analyzer": "partial",
+              "type": "string"
+            },
+            "special": {
+              "type": "string",
+              "analyzer": "special_analyzer"
+            },
+            "autocomplete": {
+              "type": "string",
+              "analyzer": "autocomplete"
+            }
+          }
+        },
+        "kv_string": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "index": "not_analyzed"
+            },
+            "value": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "categories": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "analyzer": "trigrams"
+            }
+          }
+        }
+      }
+    }
+  }
+}
