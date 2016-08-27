@@ -4,8 +4,10 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import initializeDb from './db';
 import middleware from './middleware';
-import exportApi from './export';
 import config from './config.json';
+
+import exportRoute from './routes/exportRoute';
+import importRoute from './routes/importRoute';
 
 let app = express();
 app.server = http.createServer(app);
@@ -25,8 +27,9 @@ initializeDb( db => {
 	// internal middleware
 	app.use(middleware({ config, db }));
 
-	// api router
-	app.use('/export', exportApi({ config, db }));
+	// routes
+	app.use('/export', exportRoute({ config, db, app }));
+	app.use('/import', importRoute({ config, db, app }));
 
 	app.server.listen(process.env.PORT || config.port);
 

@@ -4,58 +4,84 @@ export class Exporter {
 
   constructor(db, exportFolder, limit = 2000) {
     this.limit = limit
-    this.offset = 0
-    this.fileNumbering = 1
     this.db = db
     this.fs = require('fs')
-    this.exportFolder = `export/${exportFolder}`
+    this.commonExportFolder = 'export'
+    this.exportFolder = `${commonExportFolder}/${exportFolder}`
 
-    mkdirSync('export')
+    mkdirSync(this.commonExportFolder)
     mkdirSync(this.exportFolder)
   }
 
-  exportMysql() {
-    this.getExportPromise().then(({finished}) => {
-      if(!finished) {
-        this.exportMysql()
-      }
-    }).catch(err => console.log(err))
+  getCountSql() {
+    return `
+      select count(*) as count
+      from switch_content.site_mapping sm
+      left join switch_content.videos v using(videoID)
+      where v.videoID is not null
+      order by v.videoID DESC`;
   }
 
-  getExportPromise() {
+  getPromiseSql(limit, iterator) {
+    return `
+      select v.*, sm.siteID
+      from switch_content.site_mapping sm
+      left join switch_content.videos v using(videoID)
+      where v.videoID is not null
+      order by v.videoID DESC
+      limit ${limit} offset ${limit*iterator}`
+  }
+
+  exportMysql() {
+    const start = new Date()
+
     return new Promise((resolve, reject) => {
-      if(this.offset === 0) console.time("MySQL export")
+      let promises = []
 
-      let sql = `
-        select videos.videoID
-        from switch_content.videos
-        limit ${this.limit} offset ${this.offset}`
+      let sql = this.getCountSql()
 
-      this.db.query(sql, (err, results, fields) => {
-        if(err) reject(err)
-
-        if(results === undefined) {
-          reject("No results.")
-          return
+      this.db.query(sql, (err, results) => {
+        for(let i = 0; i <= results[0].count/this.limit; i++) {
+          promises.push(this.getExportPromise(i, this.limit))
         }
 
-        if(!results.length) {
-          console.timeEnd("MySQL export")
-          resolve({finished: true})
-          return
-        }
-
-        results.map(row => {
-          this.fs.appendFile(
-            `${this.exportFolder}/${this.fileNumbering}.json`,
-            JSON.stringify(row)
-          )
-          this.offset++
+        Promise.all(promises).then(log => {
+          resolve({
+            errors: false,
+            execTime: `${new Date().getTime()-start.getTime()} ms`,
+            docExported: results[0].count,
+            // log
+          })
+        }).catch(err => {
+          reject({errors: true, reason: err})
         })
-
-        this.fileNumbering++
-        resolve({finished: false})
-      });
+      })
     })
+  }
+
+  getExportPromise(iterator, limit) {
+    return new Promise((resolve, reject) => {
+      let sql = this.getPromiseSql(limit, iterator)
+
+        this.db.query(sql, (err, results, fields) => {
+          if(err) reject(err)
+
+          if(results === undefined) {
+            reject("No results.")
+            return
+          }
+
+          results.map(row => this.writeRow(row, iterator))
+
+          resolve(`${this.exportFolder}/${iterator+1}.json created`)
+        });
+    })
+  }
+
+  writeRow(row, iterator) {
+    this.fs.appendFile(
+      `${this.exportFolder}/${iterator+1}.json`,
+      JSON.stringify(row) + '\r\n'
+    )
   }
 }

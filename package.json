@@ -29,6 +29,7 @@
     "body-parser": "^1.13.3",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
+    "elasticsearch": "^11.0.1",
     "express": "^4.13.3",
     "mysql": "^2.11.1",
     "resource-router-middleware": "^0.5.1"
