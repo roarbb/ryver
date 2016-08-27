@@ -29,7 +29,6 @@ export class Importer {
             resolve({
               errors: false,
               execTime: `${new Date().getTime()-start.getTime()} ms`,
-              docExported: 4456,
               log
             })
           }).catch(err => {
